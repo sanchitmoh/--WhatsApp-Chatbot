@@ -1,0 +1,102 @@
+spring:
+  application:
+    name: whatsapp-navigation-chatbot
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        connection:
+          provider_disables_autocommit: true
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /api
+  tomcat:
+    max-threads: 200
+    min-spare-threads: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+whatsapp:
+  api:
+    version: v17.0
+    base-url: ${BASEURL}
+    access-token: ${WHATSAPP_ACCESS_TOKEN}
+    verify-token: ${WHATSAPP_VERIFY_TOKEN}
+    phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID:}
+    business-account-id: ${WHATSAPP_BUSINESS_ACCOUNT_ID}
+  webhook:
+    path: /webhook
+    rate-limit:
+      requests-per-minute: 60
+
+firebase:
+  service-account:
+    path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
+  project-id: ${FIREBASE_PROJECT_ID}
+
+security:
+  api-key:
+    header-name: X-API-Key
+    value: ${API_KEY}
+  rate-limit:
+    enabled: true
+    capacity: 100
+    refill-rate: 10
+    refill-duration: 1
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    com.whatsapp.chatbot: DEBUG
+    org.springframework.web: INFO
+    org.hibernate: INFO
+  pattern:
+    console: "%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n"
+  config: classpath:logback-spring.xml
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha 
